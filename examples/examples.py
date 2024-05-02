@@ -64,3 +64,17 @@ for relation_id in range(2):
             )
             print()
     print()
+
+
+# PClean
+from bnp.pclean.v1 import PClean, Schema
+import numpy as np
+
+# We assume two classes.
+schema = Schema({1: {0}, 0: {}}, 1, [lambda: np.random.uniform(), lambda: np.random.uniform()], 
+                [lambda theta, _: np.random.uniform() < theta, lambda theta, d: (d[0], 4 if d[0] else np.random.normal(theta,1))], [1.0, 1.0])
+
+data, db = PClean(schema)
+print("HIRM data:")
+print("---------")
+print([data[i] for i in range(20)])
