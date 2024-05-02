@@ -7,34 +7,30 @@ from toposort import toposort_flatten
 class Schema:
     dependency_graph: dict
     obs_class: int
-    priors: list      # Priors on any class-wide parameters
-    likelihoods: list # List of functions, from (class-parameters, {foreign_key: entity}) -> entity
+    priors: list  # Priors on any class-wide parameters
+    likelihoods: list  # List of functions, from (class-parameters, {foreign_key: entity}) -> entity
     alphas: list[float]
 
-def PClean(schema):
-    # Topologically sort the classes.
-    classes = toposort_flatten(schema.dependency_graph)
 
-    # Instantiate each class
+def make_base_measure(schema, existing_tables, cls):
+    latent = schema.priors[cls]()
+    return lambda: schema.likelihoods[cls](
+        latent, {fk: existing_tables[fk]() for fk in schema.dependency_graph[cls]}
+    )
+
+
+def PClean(schema):
+    # Topologically sort the latent classes.
+    latent_classes = [
+        c for c in toposort_flatten(schema.dependency_graph) if c != schema.obs_class
+    ]
+
+    # Instantiate the tables
     tables = []
-    for cls in classes:
-        if cls == schema.obs_class:
-            continue
-        
-        def generate_table(cls=cls):
-            latent = schema.priors[cls]()
-            return DP(
-                schema.alphas[cls],
-                lambda: schema.likelihoods[cls](
-                    latent, {fk: tables[fk]() for fk in schema.dependency_graph[cls]}
-                ),
-            )
-        tables.append(generate_table())
-    
+    for cls in latent_classes:
+        tables.append(DP(schema.alphas[cls], make_base_measure(schema, tables, cls)))
+
     # Generate the observed class
-    latent = schema.priors[schema.obs_class]()
-    observed = InfiniteArray(lambda i: schema.likelihoods[schema.obs_class](
-        latent, {fk: tables[fk]() for fk in schema.dependency_graph[schema.obs_class]}
-    ))
-    
+    generate_observation = make_base_measure(schema, tables, schema.obs_class)
+    observed = InfiniteArray(lambda i: generate_observation())
     return (observed, tables)
