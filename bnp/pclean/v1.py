@@ -26,9 +26,9 @@ def PClean(schema):
     ]
 
     # Instantiate the tables
-    tables = []
+    tables = {}
     for cls in latent_classes:
-        tables.append(DP(schema.alphas[cls], make_base_measure(schema, tables, cls)))
+        tables[cls] = DP(schema.alphas[cls], make_base_measure(schema, tables, cls))
 
     # Generate the observed class
     generate_observation = make_base_measure(schema, tables, schema.obs_class)
