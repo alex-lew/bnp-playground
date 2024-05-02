@@ -2,6 +2,8 @@
 
 A little playground for defining and running Bayesian nonparametric models, in the style of [Roy et al. (2008)](http://danroy.org/papers/RoyManGooTen-ICMLNPB-2008.pdf).
 
+Note that this is currently not a library for *fitting* these models, just for running them to generate synthetic data. It is intended for pedagogical purposes & quick prototyping.
+
 ### Getting started
 
 You can install the package and run a test script using `poetry`.
