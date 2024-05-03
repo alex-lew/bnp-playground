@@ -11,6 +11,17 @@ class InfiniteArray():
             self.values[indices] = self.f(*indices) if isinstance(indices, tuple) else self.f(indices)
         return self.values[indices]
 
+# As long as the indices generated here are only used as names,
+# and not inspected in other ways, this is a fine way to generate
+# names.
+def MakeGensym():
+    i = 0
+    def gensym():
+        nonlocal i
+        i += 1
+        return i
+    return gensym
+
 def GEM(alpha):
     # Stick-breaking construction of the GEM.
     # alpha is the concentration parameter.

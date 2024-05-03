@@ -1,4 +1,5 @@
-from bnp.datatypes import BetaBernoulli, NIGNormal, RelationInfo
+from bnp.column_types import BetaBernoulli, NIGNormal
+from bnp.irm.relation import RelationInfo
 from bnp.dpmm.v2 import DPMM
 from bnp.crosscat.v1 import CrossCat
 from bnp.irm.v1 import IRM
@@ -67,7 +68,8 @@ for relation_id in range(2):
 
 
 # PClean
-from bnp.pclean.v1 import PClean, Schema
+from bnp.pclean.v1 import PClean
+from bnp.pclean.schema import Schema
 import numpy as np
 
 # We assume two classes.
@@ -76,5 +78,14 @@ schema = Schema({1: {0}, 0: {}}, 1, [lambda: np.random.uniform(), lambda: np.ran
 
 data, db = PClean(schema)
 print("PClean data:")
+print("---------")
+print([data[i] for i in range(20)])
+
+# Hybrid
+from bnp.hybrid.v2 import Hybrid
+from bnp.hybrid.schema import HybridSchema
+schema = HybridSchema({1: {0}, 0: {}}, 1, [[BetaBernoulli, BetaBernoulli], [BetaBernoulli, NIGNormal, NIGNormal]], [1.0, 1.0])
+data, objects = Hybrid(1, 1, schema)
+print("Hybrid data:")
 print("---------")
 print([data[i] for i in range(20)])
