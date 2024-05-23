@@ -18,7 +18,7 @@ print([dp() for _ in range(10)])
 
 print("HDP samples:")
 print("----------")
-hdp = HDP(1., 2.5, ambda: np.random.normal())
+hdp = HDP(1., 2.5, lambda: np.random.normal())
 print([hdp() for _ in range(10)])
 
 print("Pitman-Yor samples:")
