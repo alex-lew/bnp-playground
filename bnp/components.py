@@ -22,10 +22,13 @@ def MakeGensym():
         return i
     return gensym
 
-def GEM(alpha):
+
+def GEM(alpha, discount=0.):
     # Stick-breaking construction of the GEM.
     # alpha is the concentration parameter.
-    betas = InfiniteArray(lambda i: np.random.beta(1, alpha))
+    # discount is the discount parameter for the generalized GEM
+    betas = InfiniteArray(
+        lambda i: np.random.beta(1 - discount, alpha + i * discount))
 
     def draw():
         u = np.random.uniform()
@@ -38,10 +41,22 @@ def GEM(alpha):
 
     return draw
 
+
 def DP(alpha, H):
     probs = GEM(alpha)
     atoms = InfiniteArray(lambda i: H())
     return (lambda: atoms[probs()])
+
+
+def PitmanYor(alpha, discount, H):
+    probs = GEM(alpha, discount=discount)
+    atoms = InfiniteArray(lambda i: H())
+    return (lambda: atoms[probs()])
+
+
+def HDP(alpha, gamma, H):
+    # Hierarchical Dirichlet Process.
+    return DP(alpha, DP(gamma, H))
 
 
 def get_latents(data, already_cached=None, path=()):
